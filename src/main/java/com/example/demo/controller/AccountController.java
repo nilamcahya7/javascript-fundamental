@@ -206,15 +206,4 @@ public class AccountController {
     redirectAttributes.addFlashAttribute("successMsg", "Your password has been successfully changed.");
     return "redirect:/account/formlogin";
   } 
-
-
-
-  private static Collection<? extends GrantedAuthority> getAuthorities(String role) {
-    final List<SimpleGrantedAuthority> authorities = new LinkedList<>();
-    authorities.add(new SimpleGrantedAuthority(role));
-    return authorities;
-  }
-
-  
-
 }

@@ -16,18 +16,12 @@
       <button class="btn btn-success mb-2 mt-2" data-toggle="modal" data-target="#responsive-modal">Create</button>
       <thead>
         <tr>
-          <td>Region ID</td>
+          <td>Departmen ID</td>
           <td>Name</td>
+          <td>Region</td>
           <td>Action</td>
         </tr>
       </thead>
-      <tbody>
-        <tr th:each="region: ${regions}">
-          <td th:text="${region.id}"></td>
-          <td th:text="${region.name}"></td>
-          <td><a th:href="@{/account/password/change/{id}(id=${user.id})}">Change Password</a></td>
-        </tr>
-      </tbody>
     </table>
   </div>
   <!-- sample modal content -->
@@ -41,13 +35,17 @@
         </div>
         <div class="modal-body">
           <form>
-            <div class="form-group">
-              <label for="regionName" class="control-label">Region Name:</label>
-              <input type="text" class="form-control" id="regionName">
-            </div>
             <div class="form-group" hidden>
-              <label for="regionId" class="control-label">Id : </label>
-              <input class="form-control" id="regionId">
+              <label for="departementId" class="control-label">Id : </label>
+              <input class="form-control" id="departmentId">
+            </div>
+            <div class="form-group">
+              <label for="departmentName" class="control-label">Departement:</label>
+              <input type="text" class="form-control" id="departmentName">
+            </div>
+            <div class="form-group">
+              <label for="region" class="control-label">Region : </label>
+              <select class="form-control" id="region"></select>
             </div>
           </form>
         </div>
@@ -67,12 +65,9 @@
     $(document).ready(() => {
       $("#myTable").DataTable({
         "ajax": {
-          url: "api/regions",
-          headers: {
-            "token": "nilamcantik"
-          },
+          url: "api/departments",
           type: "GET",
-          dataSrc: "data"
+          dataSrc: ""
         },
         "columnDefs": [
           {
@@ -81,7 +76,7 @@
             "searchable": false,
           },
           {
-            "targets": [2],
+            "targets": [3],
             "searchable": false,
             "orderable": false
           }
@@ -94,28 +89,44 @@
             "data": "name"
           },
           {
+            "data": "region_id",
+            "render": (data, type, full) => {
+              return full.region.name;
+            }
+          },
+          {
             "render": (data, type, full, meta) => {
               return `<a data-toggle="modal" data-target="#responsive-modal" onclick="edit(${full.id});"><i class="fa fa-pencil"></i></a> | <a onclick="remove(${full.id})"><i class="fa fa-trash-o"></i></a>`;
             }
           }
-        ],
+        ]
+      });
+      
+      $.ajax({
+        url: "api/regions",
+        type: "GET",
+        contentType: "application/json",
+      }).done((regions) => {
+        let options = regions.map(region =>
+          `<option value="${region.id}">${region.name}</option>`);
+        $('#region').append(options);
+      }).fail((error) => {
+        console.log(error);
       });
     });
 
     let create = () => {
-      let region = {
-        id: $('#regionId').val() || null,
-        name: $('#regionName').val()
+      let department = {
+        id: $("#departmentId").val() || null,
+        name: $("#departmentName").val(),
+        region_id:$('#region').val()
       };
 
       $.ajax({
-        url: `api/regions/save`,
+        url: `api/department/save`,
         type: "POST",
         contentType: "application/json",
-        headers: {
-          "token": "nilamcantik"
-        },
-        data: JSON.stringify(region)
+        data: JSON.stringify(department)
       }).done((response) => {
         console.log(response);
         $("#myTable").DataTable().ajax.reload();
@@ -126,12 +137,13 @@
 
     let edit = (id) => {
       $.ajax({
-        url: `api/regions/${id}`,
+        url: `api/department/${id}`,
         type: "GET",
         contentType: "application/json",
-      }).done((region) => {
-        $('#regionId').val(region.id);
-        $('#regionName').val(region.name);
+      }).done((department) => {
+        $("#departmentId").val(department.id);
+        $("#departmentName").val(department.name);
+        $("#region").val(department.region.id);
       }).fail((error) => {
         console.log(error);
       });
@@ -139,7 +151,7 @@
 
     let remove = (id) => {
       $.ajax({
-        url: `api/regions/delete/${id}`,
+        url: `api/department/delete/${id}`,
         type: "POST",
         contentType: "application/json",
       }).done((response) => {

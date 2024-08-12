@@ -28,34 +28,39 @@ import com.example.demo.service.RegionService;
 public class RegionRestController {
 
 // Nilam
-//   @Autowired
-//   private RegionService regionService;
+  @Autowired
+  private RegionService regionService;
 
-//   @GetMapping("regions")
-//   public ResponseEntity<Object> get(@RequestHeader String tokenAuth) {
-//     if (tokenAuth.equals("nilamcantik")) {
-//       List<Region> regions = regionService.get();
-//       return Utils.generaResponseEntity(HttpStatus.OK, "Data Has Been Retrieved", regions);
-//     } else{
-//       return Utils.generaResponseEntity(HttpStatus.BAD_REQUEST, "Token Is Not Valid");
-//     }
-//   }
+  @GetMapping("regionsAuth")
+  public ResponseEntity<Object> get(@RequestHeader("token") String tokenAuth) {
+    if (tokenAuth.equals("nilamcantik")) {
+      List<Region> regions = regionService.get();
+      return Utils.generateResponseEntity(HttpStatus.OK, "Data Has Been Retrieved", regions);
+    } else{
+      return Utils.generateResponseEntity(HttpStatus.BAD_REQUEST, "Token Is Not Valid");
+    }
+  }
+  
+  @GetMapping("regions")
+  public List<Region> getRegions() {
+      return regionService.get();
+  }
+  
+  @GetMapping("regions/{id}")
+  public Region getById(@PathVariable Integer id) {
+    Region region = regionService.get(id);
+    return region;
+  }
 
-//   @GetMapping("regions/{id}")
-//   public Region getById(@PathVariable Integer id) {
-//     Region region = regionService.get(id);
-//     return region;
-//   }
+  @PostMapping("regions/save")
+  public Boolean saveData(@RequestBody Region region) {
+    return regionService.save(region);
+  }
 
-//   @PostMapping("regions/save")
-//   public Boolean saveData(@RequestBody Region region) {
-//     return regionService.save(region);
-//   }
-
-//   @PostMapping("regions/delete/{id}")
-//   public Boolean delete(@PathVariable Integer id) {
-//     return regionService.delete(id);
-//   }
+  @PostMapping("regions/delete/{id}")
+  public Boolean delete(@PathVariable Integer id) {
+    return regionService.delete(id);
+  }
 
 // Anggia
 //     @Autowired
